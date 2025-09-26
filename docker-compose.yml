@@ -28,7 +28,7 @@ services:
       - product_network
 
 networks:
-  article_mgmt_backend_network:
+  product_network:
     driver: bridge
 
 volumes:
