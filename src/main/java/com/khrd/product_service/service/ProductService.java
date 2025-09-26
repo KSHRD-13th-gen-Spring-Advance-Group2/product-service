@@ -6,14 +6,16 @@ import com.khrd.product_service.model.dto.response.ProductResponse;
 import com.khrd.product_service.model.enumeration.ProductProperty;
 import org.springframework.data.domain.Sort;
 
+import java.util.UUID;
+
 public interface ProductService {
     PagedResponse<ProductResponse> getAllProducts(Integer page, Integer size, ProductProperty productProperty, Sort.Direction direction);
 
-    ProductResponse getProductById(Long id);
+    ProductResponse getProductById(UUID id);
 
     ProductResponse createProduct(ProductRequest productRequest);
 
-    ProductResponse updateProduct(Long id, ProductRequest productRequest);
+    ProductResponse updateProduct(UUID id, ProductRequest productRequest);
 
-    void deleteProduct(Long id);
+    void deleteProduct(UUID id);
 }

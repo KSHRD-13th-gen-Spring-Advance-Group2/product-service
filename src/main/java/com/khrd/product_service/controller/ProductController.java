@@ -9,6 +9,7 @@ import com.khrd.product_service.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -56,7 +57,7 @@ public class ProductController extends BaseController{
 
     @Operation(summary = "Create a new product")
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse<ProductResponse>> addProduct(@Valid @RequestBody ProductRequest productRequest) {
         try {
             return null;
         } catch (Exception e) {
@@ -66,9 +67,9 @@ public class ProductController extends BaseController{
 
     @Operation(summary = "Update product by id")
     @PutMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable("productId") UUID productId, @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable("productId") UUID productId, @Valid @RequestBody ProductRequest productRequest) {
         try {
-            return null;
+            return responseEntity("Update product successfully", productService.updateProduct(productId, productRequest));
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -78,7 +79,8 @@ public class ProductController extends BaseController{
     @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponse<Void>> deleteBookmark(@PathVariable("productId") UUID productId) {
         try {
-            return null;
+            productService.deleteProduct(productId);
+            return responseEntity("Deleted product successfully", null);
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }

@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ProductResponse {
     private UUID productId;
     private String name;
-    private Integer quantity;
+    private Long quantity;
     private BigDecimal price;
     private CategoryResponse categoryResponse;
     private UserResponse userResponse;

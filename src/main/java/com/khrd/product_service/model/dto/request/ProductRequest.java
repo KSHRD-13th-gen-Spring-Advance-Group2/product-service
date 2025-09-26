@@ -12,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class ProductRequest {
+    @Schema(example = "string")
     @NotBlank(message = "Product name is required")
     @Size(min = 3, message = "Product name must be at least 3 characters")
     @Size(max = 255, message = "Product name must not exceed 255 characters")
@@ -26,7 +27,7 @@ public class ProductRequest {
     @DecimalMin(value = "0.01", message = "Unit price must be greater than zero")
     @DecimalMax(value = "99999999.99", message = "Unit price must not exceed 99999999.99")
     @Digits(integer = 8, fraction = 2, message = "Unit price must have at most 8 digits before the decimal point and 2 after")
-    private BigDecimal unitPrice;
+    private BigDecimal price;
 
     @Schema(example = "1")
     @NotNull(message = "Quantity is required")

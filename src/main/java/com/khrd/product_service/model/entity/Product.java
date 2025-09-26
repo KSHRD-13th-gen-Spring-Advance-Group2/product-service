@@ -1,5 +1,8 @@
 package com.khrd.product_service.model.entity;
 
+import com.khrd.product_service.model.dto.response.CategoryResponse;
+import com.khrd.product_service.model.dto.response.ProductResponse;
+import com.khrd.product_service.model.dto.response.UserResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +31,26 @@ public class Product {
     @Column(name = "quantity", precision = 8)
     private Long quantity;
 
-    @Column(name = "userId", nullable = false)
+    @Column(name = "category_id", nullable = false)
+    private UUID categoryId;
+
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    @Transient
+    private CategoryResponse categoryResponse;
+
+    @Transient
+    private UserResponse userResponse;
+
+    public ProductResponse toResponse() {
+        return ProductResponse.builder()
+                .productId(this.productId)
+                .name(this.name)
+                .price(this.price)
+                .quantity(this.quantity)
+                .categoryResponse(categoryResponse)
+                .userResponse(userResponse)
+                .build();
+    }
 }
