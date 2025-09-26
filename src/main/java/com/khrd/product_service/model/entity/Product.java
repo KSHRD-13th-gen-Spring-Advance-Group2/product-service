@@ -25,6 +25,9 @@ public class Product {
     @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(precision = 8)
+    @Column(name = "quantity", precision = 8)
     private Long quantity;
+
+    @Column(name = "userId", nullable = false)
+    private UUID userId;
 }
