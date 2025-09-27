@@ -9,15 +9,17 @@ import org.springframework.data.domain.Page;
 @NoArgsConstructor
 @Builder
 public class PaginationInfo {
-    private Integer totalElements;
+    private Long totalElements;
     private Integer currentPage;
     private Integer pageSize;
     private Integer totalPages;
 
-    public PaginationInfo(Page<?> page) {
-        this.totalElements = Long.valueOf(page.getTotalElements()).intValue();
-        this.currentPage = page.getNumber() + 1;
-        this.pageSize = page.getSize();
-        this.totalPages = page.getTotalPages();
+    public static <T> PaginationInfo fromPage(Page<T> page) {
+        return new PaginationInfo(
+                page.getTotalElements(),
+                page.getNumber() + 1, // Make it 1-based for the client
+                page.getSize(),
+                page.getTotalPages()
+        );
     }
 }

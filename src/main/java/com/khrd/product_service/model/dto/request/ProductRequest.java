@@ -1,5 +1,6 @@
 package com.khrd.product_service.model.dto.request;
 
+import com.khrd.product_service.model.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -37,4 +38,6 @@ public class ProductRequest {
 
     @NotNull(message = "Category id is required")
     private UUID categoryId;
+
+
 }

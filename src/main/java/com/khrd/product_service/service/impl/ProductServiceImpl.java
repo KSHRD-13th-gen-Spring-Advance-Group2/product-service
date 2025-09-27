@@ -1,18 +1,24 @@
 package com.khrd.product_service.service.impl;
 
+import com.khrd.product_service.client.UserClient;
 import com.khrd.product_service.exception.NotFoundException;
 import com.khrd.product_service.model.dto.request.ProductRequest;
 import com.khrd.product_service.model.dto.response.PagedResponse;
+import com.khrd.product_service.model.dto.response.PaginationInfo;
 import com.khrd.product_service.model.dto.response.ProductResponse;
 import com.khrd.product_service.model.entity.Product;
 import com.khrd.product_service.model.enumeration.ProductProperty;
 import com.khrd.product_service.repository.ProductRepository;
 import com.khrd.product_service.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,21 +26,46 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final UserClient userClient;
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<ProductResponse> getAllProducts(Integer page, Integer size, ProductProperty productProperty, Sort.Direction direction) {
-        return null;
+        Pageable pageable = PageRequest.of(page - 1, size, direction, productProperty.getFieldName());
+//        fetch all data form entity
+        Page<Product> productPage = productRepository.findAll(pageable);
+//  Convert the list of Product entities into a list
+        List<ProductResponse> productResponses = productPage.getContent()
+                .stream()
+                .map(Product::toResponse)
+                .toList();
+//         Create the Pagination metadata object from the Page.
+        PaginationInfo pagination = PaginationInfo.fromPage(productPage);
+
+      return new PagedResponse<>(productResponses,pagination);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductResponse getProductById(UUID id) {
-        return null;
+        Product existProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("can't find with this product " + id));
+        return existProduct.toResponse();
     }
 
     @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest productRequest) {
-        return null;
+        Product product = new Product();
+        product.setName(productRequest.getName());
+        product.setPrice(productRequest.getPrice());
+        product.setQuantity(productRequest.getQuantity());
+        product.setCategoryId(UUID.fromString("2d0eac7b-5351-4444-9ff4-23d6e5360820"));
+        product.setUserId(UUID.fromString("84a5b7e8-40c6-4798-9da8-e9b283a94a03"));
+//        save into db
+        Product savedProduct = productRepository.save(product);
+
+        return savedProduct.toResponse();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.khrd.product_service.model.entity;
 
+import com.khrd.product_service.model.dto.request.ProductRequest;
 import com.khrd.product_service.model.dto.response.CategoryResponse;
 import com.khrd.product_service.model.dto.response.ProductResponse;
 import com.khrd.product_service.model.dto.response.UserResponse;
@@ -42,6 +43,7 @@ public class Product {
 
     @Transient
     private UserResponse userResponse;
+
 
     public ProductResponse toResponse() {
         return ProductResponse.builder()
