@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5444/postgres
-    username: seyha
-    password: seyha123
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 12562903
 
   jpa:
     hibernate:
@@ -31,8 +31,6 @@ spring:
           enabled: true
         response:
           enabled: true
-      circuitbreaker:
-        enabled: true
 
 server:
   port: 8081

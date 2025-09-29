@@ -1,6 +1,7 @@
 package com.khrd.product_service.service;
 
 import com.khrd.product_service.model.dto.request.ProductRequest;
+import com.khrd.product_service.model.dto.response.CategoryResponse;
 import com.khrd.product_service.model.dto.response.PagedResponse;
 import com.khrd.product_service.model.dto.response.ProductResponse;
 import com.khrd.product_service.model.enumeration.ProductProperty;
@@ -18,4 +19,6 @@ public interface ProductService {
     ProductResponse updateProduct(UUID id, ProductRequest productRequest);
 
     void deleteProduct(UUID id);
+
+    CategoryResponse getCategoryById(UUID id);
 }
