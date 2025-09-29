@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
         CategoryResponse category = getCategoryById(productRequest.getCategoryId());
-
+        if (category == null) throw new NotFoundException("Category not found with id: " + id);
 
         product.setName(productRequest.getName());
         product.setPrice(productRequest.getPrice());
@@ -102,9 +102,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public CategoryResponse getCategoryById(UUID id) {
         ResponseEntity<ApiResponse<CategoryResponse>> categoryResponse = categoryClient.findCategoryById(id);
-        CategoryResponse category = Objects.requireNonNull(categoryResponse.getBody()).getPayload();
-        if (category == null) throw new NotFoundException("Category not found with id: " + id);
 
-        return category;
+        return Objects.requireNonNull(categoryResponse.getBody()).getPayload();
     }
 }
