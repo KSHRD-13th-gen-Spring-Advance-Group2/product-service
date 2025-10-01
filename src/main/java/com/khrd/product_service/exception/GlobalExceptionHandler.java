@@ -6,12 +6,14 @@ import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -137,5 +139,20 @@ public class GlobalExceptionHandler {
         }
 
         return problemDetailResponseEntity(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        String message = ex.getMostSpecificCause().getMessage();
+
+        if (message.contains("java.util.UUID")) {
+            message = "Invalid UUID format. UUID must be 36 characters like '123e4567-e89b-12d3-a456-426614174000'";
+        }
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Bad Request");
+        problem.setDetail(message);
+
+        return ResponseEntity.badRequest().body(problem);
     }
 }
