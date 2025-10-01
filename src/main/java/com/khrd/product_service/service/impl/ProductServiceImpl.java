@@ -1,5 +1,4 @@
 package com.khrd.product_service.service.impl;
-
 import com.khrd.product_service.client.CategoryClient;
 import com.khrd.product_service.client.UserClient;
 import com.khrd.product_service.exception.NotFoundException;
@@ -16,12 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -29,6 +24,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
     private final ProductRepository productRepository;
     private final UserClient userClient;
     private final CategoryClient categoryClient;
@@ -42,31 +38,79 @@ public class ProductServiceImpl implements ProductService {
 //  Convert the list of Product entities into a list
         List<ProductResponse> productResponses = productPage.getContent()
                 .stream()
-                .map(Product::toResponse)
+                .map(product -> {
+                    ProductResponse response = product.toResponse();
+                    // fetch category
+                    CategoryResponse category = getCategoryById(product.getCategoryId());
+                    response.setCategoryResponse(category);
+                    // fetch user
+                    UserResponse user = getUser();
+                    response.setUserResponse(user);
+                    return response;
+
+                })
                 .toList();
 //         Create the Pagination metadata object from the Page.
         PaginationInfo pagination = PaginationInfo.fromPage(productPage);
 
-      return new PagedResponse<>(productResponses,pagination);
+        return new PagedResponse<>(productResponses, pagination);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProductResponse getProductById(UUID id) {
+    public ProductResponse getProductById(UUID id) throws NotFoundException {
+
+//find product with ID
         Product existProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("can't find with this product " + id));
-        return existProduct.toResponse();
+
+//        find category with Id
+        CategoryResponse getCategory = getCategoryById(existProduct.getCategoryId());
+        if (getCategory == null) {
+            throw new NotFoundException("Category not found with id: " + existProduct.getCategoryId());
+        }
+//        find user with Id
+        UserResponse getUser = getUser();
+        if (getUser == null) {
+            throw new NotFoundException("User not found with id: " + existProduct.getUserId());
+        }
+//        build response
+        return ProductResponse.builder()
+                .productId(existProduct.getProductId())
+                .name(existProduct.getName())
+                .quantity(existProduct.getQuantity())
+                .price(existProduct.getPrice())
+                .categoryResponse(getCategory)
+                .userResponse(getUser)
+                .build();
     }
 
     @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest productRequest) {
-        Product product = new Product();
-        product.setName(productRequest.getName());
-        product.setPrice(productRequest.getPrice());
-        product.setQuantity(productRequest.getQuantity());
-        product.setCategoryId(UUID.fromString("2d0eac7b-5351-4444-9ff4-23d6e5360820"));
-        product.setUserId(UUID.fromString("84a5b7e8-40c6-4798-9da8-e9b283a94a03"));
+        // Validate and fetch related entities
+        CategoryResponse category = getCategoryById(productRequest.getCategoryId());
+        if (category == null) {
+            throw new NotFoundException("Category not found with id: " + productRequest.getCategoryId());
+        }
+        UserResponse user = getUser();
+        if (user == null) {
+            throw new NotFoundException("User not found with id: " + getUserId());
+        }
+
+        // Build product entity
+        Product product = Product.builder()
+                .name(productRequest.getName().trim())
+                .price(productRequest.getPrice())
+                .quantity(productRequest.getQuantity())
+                .categoryId(category.getCategoryId())
+                .userId(getUserId())
+                .build();
+
+        // Set transient fields
+        product.setCategoryResponse(category);
+        product.setUserResponse(user);
+
 //        save into db
         Product savedProduct = productRepository.save(product);
 
