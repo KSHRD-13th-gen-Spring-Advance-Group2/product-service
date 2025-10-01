@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     public PagedResponse<ProductResponse> getAllProducts(Integer page, Integer size, ProductProperty productProperty, Sort.Direction direction) {
         Pageable pageable = PageRequest.of(page - 1, size, direction, productProperty.getFieldName());
 //        fetch all data form entity
-        Page<Product> productPage = productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findAllByUserId(getUserId(), pageable);
 //  Convert the list of Product entities into a list
         List<ProductResponse> productResponses = productPage.getContent()
                 .stream()
@@ -61,8 +61,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(UUID id) throws NotFoundException {
 
 //find product with ID
-        Product existProduct = productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("can't find with this product " + id));
+        Product existProduct = productRepository.findByProductIdAndUserId(id, getUserId())
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
 //        find category with Id
         CategoryResponse getCategory = getCategoryById(existProduct.getCategoryId());
@@ -120,7 +120,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
-        System.out.println("USer: " + getUserId());
         Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         CategoryResponse category = getCategoryById(productRequest.getCategoryId());
@@ -154,7 +153,6 @@ public class ProductServiceImpl implements ProductService {
 
     private UserResponse getUser() {
         ResponseEntity<ApiResponse<User>> user = userClient.getUser();
-        System.out.println("Response: " + user.getBody().getPayload());
         return Objects.requireNonNull(user.getBody()).getPayload().toResponse();
     }
 

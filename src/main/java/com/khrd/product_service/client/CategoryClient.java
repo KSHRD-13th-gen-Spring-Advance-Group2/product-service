@@ -19,9 +19,12 @@ public interface CategoryClient {
     ResponseEntity<ApiResponse<CategoryResponse>> findCategoryById(@PathVariable("categoryId") UUID categoryId);
 
     default ResponseEntity<ApiResponse<CategoryResponse>> categoryFallback(UUID categoryId, Throwable throwable) {
-        System.out.println("Error: " + throwable.getMessage());
         ApiResponse<CategoryResponse> response = ApiResponse.<CategoryResponse>builder()
-                .payload(null)
+                .payload(CategoryResponse.builder()
+                        .categoryId(UUID.randomUUID())
+                        .name("N/A")
+                        .description("N/A")
+                        .build())
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
