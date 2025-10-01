@@ -6,7 +6,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/mini-project
+          issuer-uri: http://localhost:8090/realms/mini-project
 
   datasource:
     driver-class-name: org.postgresql.Driver

@@ -76,9 +76,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
+        System.out.println("USer: " + getUserId());
         Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
-
         CategoryResponse category = getCategoryById(productRequest.getCategoryId());
         if (category == null) throw new NotFoundException("Category not found with id: " + id);
 
@@ -86,9 +86,9 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productRequest.getPrice());
         product.setQuantity(productRequest.getQuantity());
         product.setCategoryResponse(category);
-        product.setUserResponse(getCurrentUser());
+        product.setUserResponse(getUser());
         product.setCategoryId(productRequest.getCategoryId());
-        product.setUserId(UUID.fromString("84a5b7e8-40c6-4798-9da8-e9b283a94a03"));
+        product.setUserId(getUserId());
 
         return productRepository.save(product).toResponse();
     }
@@ -108,12 +108,13 @@ public class ProductServiceImpl implements ProductService {
         return Objects.requireNonNull(categoryResponse.getBody()).getPayload();
     }
 
-    private UUID getUserId() {
-        return getCurrentUser().getUserId();
+    private UserResponse getUser() {
+        ResponseEntity<ApiResponse<User>> user = userClient.getUser();
+        System.out.println("Response: " + user.getBody().getPayload());
+        return Objects.requireNonNull(user.getBody()).getPayload().toResponse();
     }
 
-    private UserResponse getCurrentUser() {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return new User(jwt).toResponse();
+    private UUID getUserId() {
+        return getUser().getUserId();
     }
 }
