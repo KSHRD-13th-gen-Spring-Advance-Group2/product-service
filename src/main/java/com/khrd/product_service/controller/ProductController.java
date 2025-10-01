@@ -7,6 +7,7 @@ import com.khrd.product_service.model.dto.response.ProductResponse;
 import com.khrd.product_service.model.enumeration.ProductProperty;
 import com.khrd.product_service.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
 @Tag(name = "Product Controller")
-//@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class ProductController extends BaseController{
     private final ProductService productService;
 

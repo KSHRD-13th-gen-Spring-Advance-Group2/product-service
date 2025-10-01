@@ -27,9 +27,9 @@ public class ProductRequest {
 
     @Schema(example = "0")
     @NotNull(message = "Price is required")
-    @DecimalMin(value = "0.01", message = "Unit price must be greater than zero")
-    @DecimalMax(value = "99999999.99", message = "Unit price must not exceed 99999999.99")
-    @Digits(integer = 8, fraction = 2, message = "Unit price must have at most 8 digits before the decimal point and 2 after")
+    @DecimalMin(value = "0.01", message = "Price must be greater than zero")
+    @DecimalMax(value = "99999999.99", message = "Price must not exceed 99999999.99")
+    @Digits(integer = 8, fraction = 2, message = "Price must have at most 8 digits before the decimal point and 2 after")
     private BigDecimal price;
 
     @Schema(example = "1")

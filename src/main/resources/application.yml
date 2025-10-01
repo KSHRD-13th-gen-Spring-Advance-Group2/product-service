@@ -2,11 +2,17 @@ spring:
   application:
     name: product-service
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/mini-project
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5444/postgres
-    username: seyha
-    password: seyha123
+    url: jdbc:postgresql://localhost:5436/product_service_db
+    username: product
+    password: product123
 
   jpa:
     hibernate:
@@ -31,8 +37,6 @@ spring:
           enabled: true
         response:
           enabled: true
-      circuitbreaker:
-        enabled: true
 
 server:
   port: 8081

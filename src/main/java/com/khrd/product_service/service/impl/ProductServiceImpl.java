@@ -1,12 +1,12 @@
 package com.khrd.product_service.service.impl;
 
+import com.khrd.product_service.client.CategoryClient;
 import com.khrd.product_service.client.UserClient;
 import com.khrd.product_service.exception.NotFoundException;
 import com.khrd.product_service.model.dto.request.ProductRequest;
-import com.khrd.product_service.model.dto.response.PagedResponse;
-import com.khrd.product_service.model.dto.response.PaginationInfo;
-import com.khrd.product_service.model.dto.response.ProductResponse;
+import com.khrd.product_service.model.dto.response.*;
 import com.khrd.product_service.model.entity.Product;
+import com.khrd.product_service.model.entity.User;
 import com.khrd.product_service.model.enumeration.ProductProperty;
 import com.khrd.product_service.repository.ProductRepository;
 import com.khrd.product_service.service.ProductService;
@@ -15,18 +15,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserClient userClient;
+    private final CategoryClient categoryClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -71,16 +76,19 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
-        Product product = productRepository.findById(id)
+        System.out.println("USer: " + getUserId());
+        Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        CategoryResponse category = getCategoryById(productRequest.getCategoryId());
+        if (category == null) throw new NotFoundException("Category not found with id: " + id);
 
         product.setName(productRequest.getName());
         product.setPrice(productRequest.getPrice());
         product.setQuantity(productRequest.getQuantity());
-        product.setCategoryResponse(null);
-        product.setUserResponse(null);
-        product.setCategoryId(UUID.fromString("2d0eac7b-5351-4444-9ff4-23d6e5360820"));
-        product.setUserId(UUID.fromString("84a5b7e8-40c6-4798-9da8-e9b283a94a03"));
+        product.setCategoryResponse(category);
+        product.setUserResponse(getUser());
+        product.setCategoryId(productRequest.getCategoryId());
+        product.setUserId(getUserId());
 
         return productRepository.save(product).toResponse();
     }
@@ -88,9 +96,25 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteProduct(UUID id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
         productRepository.delete(product);
+    }
+
+    private CategoryResponse getCategoryById(UUID id) {
+        ResponseEntity<ApiResponse<CategoryResponse>> categoryResponse = categoryClient.findCategoryById(id);
+
+        return Objects.requireNonNull(categoryResponse.getBody()).getPayload();
+    }
+
+    private UserResponse getUser() {
+        ResponseEntity<ApiResponse<User>> user = userClient.getUser();
+        System.out.println("Response: " + user.getBody().getPayload());
+        return Objects.requireNonNull(user.getBody()).getPayload().toResponse();
+    }
+
+    private UUID getUserId() {
+        return getUser().getUserId();
     }
 }
