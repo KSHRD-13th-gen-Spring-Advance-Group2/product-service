@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
         CategoryResponse category = getCategoryById(productRequest.getCategoryId());
         if (category == null) throw new NotFoundException("Category not found with id: " + id);
 
-        product.setName(productRequest.getName());
+        product.setName(productRequest.getName().trim());
         product.setPrice(productRequest.getPrice());
         product.setQuantity(productRequest.getQuantity());
         product.setCategoryResponse(category);
