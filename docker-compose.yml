@@ -1,13 +1,13 @@
 services:
   db:
-    image: postgres:14.18
+    image: postgres
     container_name: product-db-container
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 2003
+      POSTGRES_DB: product_service_db
+      POSTGRES_USER: product
+      POSTGRES_PASSWORD: product123
     ports:
-      - 5433:5432
+      - 5436:5432
     volumes:
       - "product_data:/var/lib/postgresql/data"
     networks:

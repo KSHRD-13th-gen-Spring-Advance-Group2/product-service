@@ -6,6 +6,7 @@ import com.khrd.product_service.exception.NotFoundException;
 import com.khrd.product_service.model.dto.request.ProductRequest;
 import com.khrd.product_service.model.dto.response.*;
 import com.khrd.product_service.model.entity.Product;
+import com.khrd.product_service.model.entity.User;
 import com.khrd.product_service.model.enumeration.ProductProperty;
 import com.khrd.product_service.repository.ProductRepository;
 import com.khrd.product_service.service.ProductService;
@@ -15,6 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +28,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserClient userClient;
@@ -73,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
         CategoryResponse category = getCategoryById(productRequest.getCategoryId());
@@ -83,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productRequest.getPrice());
         product.setQuantity(productRequest.getQuantity());
         product.setCategoryResponse(category);
-        product.setUserResponse(null);
+        product.setUserResponse(getCurrentUser());
         product.setCategoryId(productRequest.getCategoryId());
         product.setUserId(UUID.fromString("84a5b7e8-40c6-4798-9da8-e9b283a94a03"));
 
@@ -93,16 +96,24 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteProduct(UUID id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByProductIdAndUserId(id, getUserId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
         productRepository.delete(product);
     }
 
-    @Override
-    public CategoryResponse getCategoryById(UUID id) {
+    private CategoryResponse getCategoryById(UUID id) {
         ResponseEntity<ApiResponse<CategoryResponse>> categoryResponse = categoryClient.findCategoryById(id);
 
         return Objects.requireNonNull(categoryResponse.getBody()).getPayload();
+    }
+
+    private UUID getUserId() {
+        return getCurrentUser().getUserId();
+    }
+
+    private UserResponse getCurrentUser() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return new User(jwt).toResponse();
     }
 }

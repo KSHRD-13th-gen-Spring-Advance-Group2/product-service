@@ -19,6 +19,4 @@ public interface ProductService {
     ProductResponse updateProduct(UUID id, ProductRequest productRequest);
 
     void deleteProduct(UUID id);
-
-    CategoryResponse getCategoryById(UUID id);
 }
