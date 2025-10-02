@@ -8,6 +8,9 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/mini-project
 
+  config:
+    import: configserver:http://35.209.164.72:8888
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5444/postgres
