@@ -21,12 +21,12 @@ public interface CategoryClient {
     default ResponseEntity<ApiResponse<CategoryResponse>> categoryFallback(UUID categoryId, Throwable throwable) {
         ApiResponse<CategoryResponse> response = ApiResponse.<CategoryResponse>builder()
                 .payload(CategoryResponse.builder()
-                        .categoryId(UUID.randomUUID())
+                        .categoryId(categoryId)
                         .name("N/A")
-                        .description("N/A")
+                        .description("Unavailable")
                         .build())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return ResponseEntity.ok(response);
     }
 }

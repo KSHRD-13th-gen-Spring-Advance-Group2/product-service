@@ -159,4 +159,15 @@ public class ProductServiceImpl implements ProductService {
     private UUID getUserId() {
         return getUser().getUserId();
     }
+
+    private CategoryResponse getNonCategory(UUID id)
+    {
+        ResponseEntity<ApiResponse<CategoryResponse>> categoryResponse = categoryClient.findCategoryById(id);
+        if (categoryResponse == null) {
+            return CategoryResponse.builder()
+                    .categoryId(UUID.randomUUID())
+                    .name("N/A") .description("N/A")
+                    .build();
+        }
+        return Objects.requireNonNull(categoryResponse.getBody()).getPayload(); }
 }

@@ -3,7 +3,7 @@ spring:
     name: product-service
 
   profiles:
-    active: prod
+    active: dev
 
-  config:
-    import: "configserver:http://localhost:8888"
+#  config:
+#    import: "configserver:http://localhost:8888"
