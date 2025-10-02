@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.UUID;
 
@@ -20,11 +19,7 @@ public interface CategoryClient {
 
     default ResponseEntity<ApiResponse<CategoryResponse>> categoryFallback(UUID categoryId, Throwable throwable) {
         ApiResponse<CategoryResponse> response = ApiResponse.<CategoryResponse>builder()
-                .payload(CategoryResponse.builder()
-                        .categoryId(categoryId)
-                        .name("N/A")
-                        .description("Unavailable")
-                        .build())
+                .payload(null)
                 .build();
 
         return ResponseEntity.ok(response);

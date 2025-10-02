@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> {
                     ProductResponse response = product.toResponse();
                     // fetch category
-                    CategoryResponse category = getCategoryById(product.getCategoryId());
+                    CategoryResponse category = getNonCategory(product.getCategoryId());
                     response.setCategoryResponse(category);
                     // fetch user
                     UserResponse user = getUser();
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
 //        find category with Id
-        CategoryResponse getCategory = getCategoryById(existProduct.getCategoryId());
+        CategoryResponse getCategory = getNonCategory(existProduct.getCategoryId());
         if (getCategory == null) {
             throw new NotFoundException("Category not found with id: " + existProduct.getCategoryId());
         }
@@ -166,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
         if (categoryResponse == null) {
             return CategoryResponse.builder()
                     .categoryId(UUID.randomUUID())
-                    .name("N/A") .description("N/A")
+                    .name("N/A").description("Unavailable")
                     .build();
         }
         return Objects.requireNonNull(categoryResponse.getBody()).getPayload(); }

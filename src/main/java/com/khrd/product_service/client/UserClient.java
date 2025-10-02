@@ -1,5 +1,6 @@
 package com.khrd.product_service.client;
 
+import com.khrd.product_service.exception.NotFoundException;
 import com.khrd.product_service.model.dto.response.ApiResponse;
 import com.khrd.product_service.model.entity.User;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -17,17 +18,6 @@ public interface UserClient {
     ResponseEntity<ApiResponse<User>> getUser();
 
     default ResponseEntity<ApiResponse<User>> userFallback(Throwable throwable) {
-        ApiResponse<User> response = ApiResponse.<User>builder()
-                .payload(User.builder()
-                        .id(String.valueOf(UUID.randomUUID()))
-                        .firstName("N/A")
-                        .lastName("N/A")
-                        .username("N/A")
-                        .email("N/A")
-                        .imageUrl(null)
-                        .build())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        throw new NotFoundException("Auth service is not available. Cannot create category.");
     }
 }
